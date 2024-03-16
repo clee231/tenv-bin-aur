@@ -1,4 +1,4 @@
-# Maintainer: Chase 李 <me@chase.ninja>
+# Maintainer: Chase 李 <aur@chase.ninja>
 
 pkgname=tenv-bin
 pkgver=1.2.0
