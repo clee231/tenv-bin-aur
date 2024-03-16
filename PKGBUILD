@@ -1,6 +1,6 @@
 # Maintainer: Chase 李 <me@chase.ninja>
 
-pkgname=tenv
+pkgname=tenv-bin
 pkgver=1.2.0
 pkgrel=1
 pkgdesc="OpenTofu / Terraform / Terragrunt version manager"
