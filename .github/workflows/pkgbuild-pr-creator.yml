@@ -5,8 +5,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  VersionUpdator:
+  VersionUpdater:
     runs-on: ubuntu-latest
+    name: Version Updater
     steps:
       - uses: actions/checkout@v4
 
@@ -16,6 +17,7 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           repo: tofuutils/tenv
+          latest: true
         id: tf_version
       - name: Display tenv version
         run: echo ${{ steps.tf_version.outputs.tag_name }}
