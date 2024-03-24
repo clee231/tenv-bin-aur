@@ -1,0 +1,20 @@
+---
+
+on:
+  workflow_dispatch:
+
+jobs:
+  VersionUpdator:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: cardinalby/git-get-release-action@v1
+        name: Get tenv version
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          repo: tofuutils/tenv
+        id: tf_version
+      - name: Display tenv version
+        run: echo ${{ tf_version.tag_name }}
