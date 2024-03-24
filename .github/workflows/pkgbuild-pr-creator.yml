@@ -31,3 +31,7 @@ jobs:
         run: |
           echo "tenv release: ${{ steps.tf_version.outputs.tag_name }}"
           echo "AUR package release: ${{ steps.repo_version.outputs.tag_name }}"
+
+      - name: Sanity check run only if version is different
+        run: echo "The tenv version differs from what is pinned in the AUR package! We should make a new release!"
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
