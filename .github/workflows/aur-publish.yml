@@ -4,7 +4,7 @@ name: aur-publish
 on:
   push:
     tags:
-      - '*'
+      - 'v*.*.*'
 
 jobs:
   aur-publish:
@@ -22,3 +22,12 @@ jobs:
           ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
           commit_message: "Release tenv ${{ github.ref_name }}"
           ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+
+      - name: Create version release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "PKGBUILD"
+          bodyFile: |
+            # ${{ github.ref_name }}
+            This AUR package is available here: https://aur.archlinux.org/packages/tenv-bin
+            See the upstream project for changes with the software: https://github.com/tofuutils/tenv

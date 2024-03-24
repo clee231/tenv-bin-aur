@@ -19,5 +19,15 @@ jobs:
           repo: tofuutils/tenv
           latest: true
         id: tf_version
-      - name: Display tenv version
-        run: echo ${{ steps.tf_version.outputs.tag_name }}
+      - uses: cardinalby/git-get-release-action@v1
+        name: Get this repo's version
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          latest: true
+        id: repo_version
+
+      - name: Display tenv Version Information
+        run: |
+          echo "tenv release: ${{ steps.tf_version.outputs.tag_name }}"
+          echo "AUR package release: ${{ steps.repo_version.outputs.tag_name }}"
