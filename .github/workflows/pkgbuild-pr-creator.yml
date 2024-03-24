@@ -1,4 +1,5 @@
 ---
+name: PKGBUILD PR Creator
 
 on:
   workflow_dispatch:
@@ -17,4 +18,4 @@ jobs:
           repo: tofuutils/tenv
         id: tf_version
       - name: Display tenv version
-        run: echo ${{ tf_version.tag_name }}
+        run: echo ${{ steps.tf_version.outputs.tag_name }}
