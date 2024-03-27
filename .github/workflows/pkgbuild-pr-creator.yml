@@ -63,7 +63,8 @@ jobs:
       # - Generate new PKGBUILD file
       - name: Generate new PKGBUILD
         run: |
-          export PKGVER="${{ steps.tf_version.outputs.tag_name:1 }}"
+          export PKGVER="${{ steps.tf_version.outputs.tag_name }}"
+          export PKGVER="${PKGVER:1}"
           export pkgver='${pkgver}'
           export CHECKSUM_ARM64="${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
           export CHECKSUM_ARMV6="${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
