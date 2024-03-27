@@ -48,5 +48,9 @@ jobs:
           curl -vL "$CHECKSUM_FILE" -o checksum.txt
           cat checksum.txt
       # - Extract checksums from file
+      - name: Extract checksums - arm64
+        id: checksum_arm64
+        run: |
+          echo "CHECKSUM_ARM64=$(cat checksum.txt | grep 'Linux_arm64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
       # - Generate new PKGBUILD file
       # - Create PR
