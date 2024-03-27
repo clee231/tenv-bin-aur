@@ -52,5 +52,7 @@ jobs:
         id: checksum_arm64
         run: |
           echo "CHECKSUM_ARM64=$(cat checksum.txt | grep 'Linux_arm64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+      - name: Echo checksum
+        run: echo "CHECKSUM_ARM64=${{ steps.checksum_arm64.outputs.CHECKSUM_ARM64 }}"
       # - Generate new PKGBUILD file
       # - Create PR
