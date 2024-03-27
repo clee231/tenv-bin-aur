@@ -29,8 +29,4 @@ jobs:
         uses: ncipollo/release-action@v1
         with:
           artifacts: "PKGBUILD"
-          body: |
-            This AUR package is available here: https://aur.archlinux.org/packages/tenv-bin
-            See the upstream project for changes with the software: https://github.com/tofuutils/tenv
-
-            tenv Changelog: https://github.com/tofuutils/tenv/releases/tag/${{ github.ref_name }}
+          generateReleaseNotes: true
