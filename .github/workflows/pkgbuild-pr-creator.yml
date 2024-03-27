@@ -43,8 +43,10 @@ jobs:
       # - Get Linux release checksums file
       - name: Get release checksum file
         run: | 
-          CHECKSUM_FILE=$(echo '${{ steps.tf_version.outputs.assets }}' | jq '.[] | {name, browser_download_url} | select( .name | contains("checksums")) | .browser_download_url')
+          CHECKSUM_FILE=$(echo '${{ steps.tf_version.outputs.assets }}' | jq -r '.[] | {name, browser_download_url} | select( .name | contains("checksums")) | .browser_download_url')
           echo "$CHECKSUM_FILE"
+          curl -vL "$CHECKSUM_FILE" -o checksum.txt
+          cat checksum.txt
       # - Extract checksums from file
       # - Generate new PKGBUILD file
       # - Create PR
