@@ -60,6 +60,14 @@ jobs:
           echo "CHECKSUM_ARMV6=${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
           echo "CHECKSUM_I386=${{ steps.checksums.outputs.CHECKSUM_I386 }}"
           echo "CHECKSUM_X86_64=${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
-          which envsubst
       # - Generate new PKGBUILD file
+      - name: Generate new PKGBUILD
+        run: |
+          export PKGVER="${{ steps.tf_version.outputs.tag_name }}"
+          export CHECKSUM_ARM64="${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
+          export CHECKSUM_ARMV6="${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
+          export CHECKSUM_I386="${{ steps.checksums.outputs.CHECKSUM_I386 }}"
+          export CHECKSUM_X86_64="${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
+          cat PKGBUILD.template | envsubst
+
       # - Create PR
