@@ -1,5 +1,5 @@
 ---
-name: Tag on PR close
+name: Release on PR close
 
 on:
   pull_request:
