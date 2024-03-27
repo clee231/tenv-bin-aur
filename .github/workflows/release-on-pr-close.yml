@@ -8,7 +8,7 @@ on:
 jobs:
   AutoRelease:
     name: Create Release
-    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.head_ref, "upstream/")
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.head_ref, 'upstream/')
     permissions:
       contents: write
     runs-on: ubuntu-latest
