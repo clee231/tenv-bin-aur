@@ -32,7 +32,7 @@ jobs:
         with:
           artifacts: "PKGBUILD"
           tag: ${{ steps.new_tag.outputs.NEW_TAG }}
-          bodyFile: |
+          body: |
             This AUR package is available here: https://aur.archlinux.org/packages/tenv-bin
             See the upstream project for changes with the software: https://github.com/tofuutils/tenv
 
