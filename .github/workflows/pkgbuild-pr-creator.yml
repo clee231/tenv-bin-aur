@@ -1,11 +1,19 @@
 ---
+name: PKGBUILD PR Creator
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '10 7 * * *'
+
+permissions:
+  contents: write
+  pull-requests: write
 
 jobs:
-  VersionUpdator:
+  VersionUpdater:
     runs-on: ubuntu-latest
+    name: Version Updater
     steps:
       - uses: actions/checkout@v4
 
@@ -15,6 +23,80 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           repo: tofuutils/tenv
+          latest: true
         id: tf_version
-      - name: Display tenv version
-        run: echo ${{ tf_version.tag_name }}
+      - uses: cardinalby/git-get-release-action@v1
+        name: Get this repo's version
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        with:
+          latest: true
+        id: repo_version
+
+      - name: Display tenv Version Information
+        run: |
+          echo "tenv release: ${{ steps.tf_version.outputs.tag_name }}"
+          echo "AUR package release: ${{ steps.repo_version.outputs.tag_name }}"
+
+      - name: Sanity check run only if version is different
+        run: echo "The tenv version differs from what is pinned in the AUR package! We should make a new release!"
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+
+      # - Get Linux release URLs for all supported Linux architectures
+      - name: Get Linux release URLs
+        run: |
+          echo '${{ steps.tf_version.outputs.assets }}' | jq '[.[] | {name, browser_download_url} | select( .name | (contains("Linux") or contains("checksums")))]'
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+      # - Get Linux release checksums file
+      - name: Get release checksum file
+        run: | 
+          CHECKSUM_FILE=$(echo '${{ steps.tf_version.outputs.assets }}' | jq -r '.[] | {name, browser_download_url} | select( .name | contains("checksums")) | .browser_download_url')
+          echo "$CHECKSUM_FILE"
+          curl -vL "$CHECKSUM_FILE" -o checksum.txt
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+      # - Extract checksums from file
+      - name: Extract checksums
+        id: checksums
+        run: |
+          echo "CHECKSUM_ARM64=$(cat checksum.txt | grep 'Linux_arm64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_ARMV6=$(cat checksum.txt | grep 'Linux_armv6' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_I386=$(cat checksum.txt | grep 'Linux_i386' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_X86_64=$(cat checksum.txt | grep 'Linux_x86_64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+      - name: Echo checksums
+        run: |
+          echo "CHECKSUM_ARM64=${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
+          echo "CHECKSUM_ARMV6=${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
+          echo "CHECKSUM_I386=${{ steps.checksums.outputs.CHECKSUM_I386 }}"
+          echo "CHECKSUM_X86_64=${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+      # - Generate new PKGBUILD file
+      - name: Generate new PKGBUILD
+        run: |
+          export PKGVER="${{ steps.tf_version.outputs.tag_name }}"
+          export PKGVER="${PKGVER:1}" # Cut off the 'v' in version tag
+          export pkgver='${pkgver}' #   Ensure this does not get substituted
+          export pkgdir='${pkgdir}' #   Ensure this does not get substituted
+          export CHECKSUM_ARM64="${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
+          export CHECKSUM_ARMV6="${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
+          export CHECKSUM_I386="${{ steps.checksums.outputs.CHECKSUM_I386 }}"
+          export CHECKSUM_X86_64="${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
+          cat "PKGBUILD.template" | envsubst > PKGBUILD
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
+
+      # - Create PR
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: Update tenv from ${{ steps.repo_version.outputs.tag_name }} to ${{ steps.tf_version.outputs.tag_name }}
+          base: master
+          branch: upstream/${{ steps.tf_version.outputs.tag_name }}
+          delete-branch: true
+          add-paths: |
+            PKGBUILD
+          body: |
+            A new version of tenv has been released!
+            ${{ steps.tf_version.outputs.tag_name }} was published on ${{ steps.tf_version.outputs.published_at }}.
+
+            This repo's latest release is ${{ steps.repo_version.outputs.tag_name }}.
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}

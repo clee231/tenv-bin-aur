@@ -1,0 +1,51 @@
+---
+name: Tag on PR close
+
+on:
+  pull_request:
+    types: [closed]
+
+jobs:
+  AutoRelease:
+    name: Create Release
+    if: github.event_name == 'pull_request' && github.event.action == 'closed' && github.event.pull_request.merged == true && startsWith(github.head_ref, "upstream/")
+    permissions:
+      contents: write
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+      - name: Tag and push latest commit
+        id: new_tag
+        run: |
+          BRANCH_HEAD="${{ github.head_ref }}"
+          echo "Incoming Branch Name: ${BRANCH_HEAD}"
+          NEW_VERSION="${BRANCH_HEAD:9}"
+          echo "New Version: ${NEW_VERSION}"
+          git tag ${NEW_VERSION} master
+          git push origin ${NEW_VERSION}
+          echo "NEW_TAG=${NEW_VERSION}" >> $GITHUB_OUTPUT
+
+      - name: Create version release
+        uses: ncipollo/release-action@v1
+        with:
+          artifacts: "PKGBUILD"
+          bodyFile: |
+            This AUR package is available here: https://aur.archlinux.org/packages/tenv-bin
+            See the upstream project for changes with the software: https://github.com/tofuutils/tenv
+
+            tenv Changelog: https://github.com/tofuutils/tenv/releases/tag/${{ steps.new_tag.outputs.NEW_TAG }}
+
+      - name: Publish AUR package
+        uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
+        with:
+          pkgname: tenv-bin
+          pkgbuild: ./PKGBUILD
+          commit_username: ${{ secrets.AUR_USERNAME }}
+          commit_email: ${{ secrets.AUR_EMAIL }}
+          ssh_private_key: ${{ secrets.AUR_SSH_PRIVATE_KEY }}
+          commit_message: "Release tenv ${{ steps.new_tag.outputs.NEW_TAG }}"
+          ssh_keyscan_types: rsa,dsa,ecdsa,ed25519
+
+
