@@ -3,6 +3,8 @@ name: PKGBUILD PR Creator
 
 on:
   workflow_dispatch:
+  schedule:
+    - cron: '10 7 * * *'
 
 permissions:
   contents: write
@@ -44,12 +46,14 @@ jobs:
       - name: Get Linux release URLs
         run: |
           echo '${{ steps.tf_version.outputs.assets }}' | jq '[.[] | {name, browser_download_url} | select( .name | (contains("Linux") or contains("checksums")))]'
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
       # - Get Linux release checksums file
       - name: Get release checksum file
         run: | 
           CHECKSUM_FILE=$(echo '${{ steps.tf_version.outputs.assets }}' | jq -r '.[] | {name, browser_download_url} | select( .name | contains("checksums")) | .browser_download_url')
           echo "$CHECKSUM_FILE"
           curl -vL "$CHECKSUM_FILE" -o checksum.txt
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
       # - Extract checksums from file
       - name: Extract checksums
         id: checksums
@@ -58,12 +62,14 @@ jobs:
           echo "CHECKSUM_ARMV6=$(cat checksum.txt | grep 'Linux_armv6' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
           echo "CHECKSUM_I386=$(cat checksum.txt | grep 'Linux_i386' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
           echo "CHECKSUM_X86_64=$(cat checksum.txt | grep 'Linux_x86_64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
       - name: Echo checksums
         run: |
           echo "CHECKSUM_ARM64=${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
           echo "CHECKSUM_ARMV6=${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
           echo "CHECKSUM_I386=${{ steps.checksums.outputs.CHECKSUM_I386 }}"
           echo "CHECKSUM_X86_64=${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
       # - Generate new PKGBUILD file
       - name: Generate new PKGBUILD
         run: |
@@ -76,6 +82,7 @@ jobs:
           export CHECKSUM_I386="${{ steps.checksums.outputs.CHECKSUM_I386 }}"
           export CHECKSUM_X86_64="${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
           cat "PKGBUILD.template" | envsubst > PKGBUILD
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
 
       # - Create PR
       - name: Create PR
@@ -92,3 +99,4 @@ jobs:
             ${{ steps.tf_version.outputs.tag_name }} was published on ${{ steps.tf_version.outputs.published_at }}.
 
             This repo's latest release is ${{ steps.repo_version.outputs.tag_name }}.
+        if: ${{ steps.tf_version.outputs.tag_name != steps.repo_version.outputs.tag_name }}
