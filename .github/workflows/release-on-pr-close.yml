@@ -32,11 +32,7 @@ jobs:
         with:
           artifacts: "PKGBUILD"
           tag: ${{ steps.new_tag.outputs.NEW_TAG }}
-          body: |
-            This AUR package is available here: https://aur.archlinux.org/packages/tenv-bin
-            See the upstream project for changes with the software: https://github.com/tofuutils/tenv
-
-            tenv Changelog: https://github.com/tofuutils/tenv/releases/tag/${{ steps.new_tag.outputs.NEW_TAG }}
+          generateReleaseNotes: true
 
       - name: Publish AUR package
         uses: KSXGitHub/github-actions-deploy-aur@v2.7.0
