@@ -64,12 +64,26 @@ jobs:
       - name: Generate new PKGBUILD
         run: |
           export PKGVER="${{ steps.tf_version.outputs.tag_name }}"
-          export PKGVER="${PKGVER:1}"
-          export pkgver='${pkgver}'
+          export PKGVER="${PKGVER:1}" # Cut off the 'v' in version tag
+          export pkgver='${pkgver}' #   Ensure this does not get substituted
           export CHECKSUM_ARM64="${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
           export CHECKSUM_ARMV6="${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
           export CHECKSUM_I386="${{ steps.checksums.outputs.CHECKSUM_I386 }}"
           export CHECKSUM_X86_64="${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
-          cat PKGBUILD.template | envsubst
+          cat "PKGBUILD.template" | envsubst > PKGBUILD
 
       # - Create PR
+      - name: Create PR
+        uses: peter-evans/create-pull-request@v6
+        with:
+          title: Update tenv from ${{ steps.repo_version.outputs.tag_name }} to ${{ steps.tf_version.outputs.tag_name }}
+          base: master
+          branch: upstream/${{ steps.tf_version.outputs.tag_name }}
+          delete-branch: true
+          add-paths: |
+            PKGBUILD
+          body: |
+            A new version of tenv has been released!
+            ${{ steps.tf_version.outputs.tag_name }} was published on ${{ steps.tf_version.outputs.published_at }}.
+
+            This repo's latest release is ${{ steps.repo_version.outputs.tag_name }}.
