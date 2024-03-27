@@ -70,6 +70,7 @@ jobs:
           export PKGVER="${{ steps.tf_version.outputs.tag_name }}"
           export PKGVER="${PKGVER:1}" # Cut off the 'v' in version tag
           export pkgver='${pkgver}' #   Ensure this does not get substituted
+          export pkgdir='${pkgdir}' #   Ensure this does not get substituted
           export CHECKSUM_ARM64="${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
           export CHECKSUM_ARMV6="${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
           export CHECKSUM_I386="${{ steps.checksums.outputs.CHECKSUM_I386 }}"
