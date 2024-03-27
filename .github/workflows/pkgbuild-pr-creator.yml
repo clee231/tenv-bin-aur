@@ -39,7 +39,7 @@ jobs:
       # - Get Linux release URLs for all supported Linux architectures
       - name: Get Linux release URLs
         run: |
-          echo ${{ steps.tf_version.outputs.assets }} | jq .
+          echo '${{ steps.tf_version.outputs.assets }}' | jq .
       # - Get Linux release checksums file
       # - Extract checksums from file
       # - Generate new PKGBUILD file
