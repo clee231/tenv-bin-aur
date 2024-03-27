@@ -49,10 +49,17 @@ jobs:
           cat checksum.txt
       # - Extract checksums from file
       - name: Extract checksums - arm64
-        id: checksum_arm64
+        id: checksums
         run: |
           echo "CHECKSUM_ARM64=$(cat checksum.txt | grep 'Linux_arm64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_ARMV6=$(cat checksum.txt | grep 'Linux_armv6' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_I386=$(cat checksum.txt | grep 'Linux_i386' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
+          echo "CHECKSUM_X86_64=$(cat checksum.txt | grep 'Linux_x86_64' | cut -d' ' -f 1)" >> $GITHUB_OUTPUT
       - name: Echo checksum
-        run: echo "CHECKSUM_ARM64=${{ steps.checksum_arm64.outputs.CHECKSUM_ARM64 }}"
+        run: |
+          echo "CHECKSUM_ARM64=${{ steps.checksums.outputs.CHECKSUM_ARM64 }}"
+          echo "CHECKSUM_ARMV6=${{ steps.checksums.outputs.CHECKSUM_ARMV6 }}"
+          echo "CHECKSUM_I386=${{ steps.checksums.outputs.CHECKSUM_I386 }}"
+          echo "CHECKSUM_X86_64=${{ steps.checksums.outputs.CHECKSUM_X86_64 }}"
       # - Generate new PKGBUILD file
       # - Create PR
