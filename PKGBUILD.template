@@ -33,7 +33,6 @@ package() {
   install -Dm 0755 "terragrunt" "${pkgdir}/usr/bin/terragrunt"
   install -Dm 0755 "tf" "${pkgdir}/usr/bin/tf"
   install -Dm 0755 "tofu" "${pkgdir}/usr/bin/tofu"
-  install -Dm 0644 "CHANGELOG.md" "${pkgdir}/usr/share/doc/tenv/CHANGELOG.md"
   install -Dm 0644 "LICENSE" "${pkgdir}/usr/share/doc/tenv/LICENSE"
   install -Dm 0644 "README.md" "${pkgdir}/usr/share/doc/tenv/README.md"
 }
