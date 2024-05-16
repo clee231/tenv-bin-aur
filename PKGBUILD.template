@@ -3,7 +3,7 @@
 pkgname=tenv-bin
 pkgver=${PKGVER}
 pkgrel=1
-pkgdesc="OpenTofu / Terraform / Terragrunt version manager"
+pkgdesc="OpenTofu / Terraform / Terragrunt and Atmos version manager"
 arch=('x86_64' 'i386' 'armv6' 'arm64')
 url="https://github.com/tofuutils/tenv"
 license=('Apache-2.0')
@@ -11,10 +11,9 @@ groups=()
 depends=()
 makedepends=()
 checkdepends=()
-optdepends=('cosign: package validation for OpenTofu'
-            'gnupg: package validation for Terraform')
-provides=("tf" "tofu" "terraform" "terragrunt")
-conflicts=('terraform' 'tofu' 'terragrunt')
+optdepends=('cosign: package validation for OpenTofu')
+provides=("atmos" "tenv" "terraform" "terragrunt" "tf" "tofu")
+conflicts=('atmos' 'atmos-bin' 'opentofu' 'opentofu-bin' 'opentofu-bin-stable' 'opentofu-git' 'terraform' 'terragrunt' 'tfenv' 'tgenv' 'tofuenv')
 replaces=()
 backup=()
 options=()
@@ -28,11 +27,15 @@ noextract=()
 md5sums=()
 
 package() {
+  install -Dm 0755 "atmos" "${pkgdir}/usr/bin/atmos"
   install -Dm 0755 "tenv" "${pkgdir}/usr/bin/tenv"
   install -Dm 0755 "terraform" "${pkgdir}/usr/bin/terraform"
   install -Dm 0755 "terragrunt" "${pkgdir}/usr/bin/terragrunt"
   install -Dm 0755 "tf" "${pkgdir}/usr/bin/tf"
   install -Dm 0755 "tofu" "${pkgdir}/usr/bin/tofu"
+  install -Dm 0644 "CHANGELOG.md" "${pkgdir}/usr/share/doc/tenv/CHANGELOG.md"
+  install -Dm 0644 "LICENSE" "${pkgdir}/usr/share/doc/tenv/LICENSE"
+  install -Dm 0644 "README.md" "${pkgdir}/usr/share/doc/tenv/README.md"
 }
 
 sha256sums_x86_64=('${CHECKSUM_X86_64}')
